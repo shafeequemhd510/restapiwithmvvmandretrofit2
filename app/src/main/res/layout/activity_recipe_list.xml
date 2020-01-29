@@ -30,6 +30,14 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+
+    <Button
+        android:id="@+id/btn_get_from_db"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="getRecipe from db"
+        android:layout_gravity="right"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_recipe_list"
         android:layout_width="match_parent"

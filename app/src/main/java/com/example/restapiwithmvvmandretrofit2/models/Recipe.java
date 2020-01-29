@@ -3,13 +3,23 @@ package com.example.restapiwithmvvmandretrofit2.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Arrays;
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
+import java.util.Arrays;
+@Entity
 public class Recipe implements Parcelable {
 
 private String title;
 private String publisher;
+
+@Ignore
 private String[] ingredients;
+
+@PrimaryKey
+@NonNull
 private String recipe_id;
 private String image_url;
 private float social_rank;

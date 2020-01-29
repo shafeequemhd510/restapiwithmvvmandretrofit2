@@ -5,15 +5,25 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
+
 import android.os.Bundle;
 
 import android.app.SearchManager;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
+import android.widget.Toast;
+
 import com.example.restapiwithmvvmandretrofit2.adapters.OnRecipeListener;
 import com.example.restapiwithmvvmandretrofit2.adapters.RecipeRecyclerAdapter;
 import com.example.restapiwithmvvmandretrofit2.models.Recipe;
+import com.example.restapiwithmvvmandretrofit2.room.AppData;
 import com.example.restapiwithmvvmandretrofit2.viewmodel.RecipeListViewModel;
+
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -21,15 +31,35 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     private RecipeListViewModel mRecipeListViewModel;
     private RecyclerView mRecyclerView;
+    private Button btnGetRecipeFromDb;
     private RecipeRecyclerAdapter mAdapter;
     private SearchView mSearchView;
+    private AppData db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_list);
 
+        db = Room.databaseBuilder(getApplicationContext(),
+                AppData.class, "db_crm")
+                .fallbackToDestructiveMigration()
+                .allowMainThreadQueries()
+                .build();
+
         mRecyclerView = findViewById(R.id.rv_recipe_list);
+        btnGetRecipeFromDb = findViewById(R.id.btn_get_from_db);
+        btnGetRecipeFromDb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               List<Recipe> recipeList=db.recipeDao().getAllRecipe();
+                Toast.makeText(RecipeListActivity.this, recipeList.size()+" items in db", Toast.LENGTH_SHORT).show();
+                for (Iterator<Recipe> iterator = recipeList.iterator(); iterator.hasNext(); ) {
+                    Recipe recipe = iterator.next();
+                    Log.d(TAG, "onClick: "+recipe.toString());
+                }
+            }
+        });
 //        mSearchView = findViewById(R.id.search_view);
 
         mRecipeListViewModel = ViewModelProviders.of(this).get(RecipeListViewModel.class);
@@ -86,6 +116,7 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
             public void onChanged(@Nullable List<Recipe> recipes) {
                 if (recipes != null) {
                     mAdapter.setRecipes(recipes);
+                    db.recipeDao().insert(recipes);
                 }
             }
         });
